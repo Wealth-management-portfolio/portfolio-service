@@ -1,7 +1,8 @@
 FROM docker.io/library/openjdk:21-ea AS builder
 WORKDIR /app
 COPY ./ /app/
-RUN ./gradlew clean bootJar --no-daemon -x test \
+RUN chmod +x gradlew \
+    && ./gradlew clean bootJar --no-daemon -x test \
     && find build/libs -maxdepth 1 \
        -type f \
        -name "*.jar" \
@@ -9,5 +10,5 @@ RUN ./gradlew clean bootJar --no-daemon -x test \
        -exec cp {} /app/portfolio-service.jar \;
 
 FROM docker.io/redhat/ubi9
-COPY --from=builder /app/build/libs/portfolio-service.jar .
+COPY --from=builder /app/portfolio-service.jar ./portfolio-service.jar
 ENTRYPOINT ["java", "-jar", "portfolio-service.jar"]
